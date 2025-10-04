@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import { geocodePlaces } from './geocode.js';
 import { generateCameraPath } from './cameraPath.js';
-import { renderFrames } from './renderer.js';
+import { renderFrames } from './renderer-simple.js';
 import { exportVideo } from './video.js';
 import { join } from 'path';
 import fs from 'fs';
@@ -85,7 +85,7 @@ program
       console.log(`Saved camera path to ${cameraPathFile}\n`);
 
       // Step 3: Render frames
-      console.log('Step 3: Rendering frames with CesiumJS...');
+      console.log('Step 3: Rendering frames with canvas-based map...');
       await renderFrames(geocodedPlaces, cameraPath, framesDir, width, height);
       console.log();
 

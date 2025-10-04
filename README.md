@@ -1,12 +1,16 @@
 # maps-test
 
-CLI 3D Travel Journey Video Generator - Create stunning 3D animated videos of your travel routes using CesiumJS.
+CLI 3D Travel Journey Video Generator - Create stunning animated videos of your travel routes.
+
+## Implementation
+
+This tool uses a **canvas-based 2D map renderer** for maximum compatibility and self-contained operation. The renderer doesn't require external CDN resources, making it work reliably in restricted network environments. An alternative CesiumJS-based 3D renderer is also available in `src/renderer.js` for environments with full internet access.
 
 ## Features
 
-- **Geocoding**: Automatically convert place names to coordinates using Nominatim API
-- **3D Visualization**: Render beautiful 3D globe animations with CesiumJS
-- **Smooth Camera Paths**: Great-circle interpolation for realistic camera movement
+- **Geocoding**: Automatically convert place names to coordinates using Nominatim API (with fallback coordinates for common cities)
+- **2D/3D Visualization**: Render beautiful animated map journeys with smooth camera movement
+- **Smooth Camera Paths**: Great-circle interpolation for realistic camera movement between locations
 - **Video Export**: Generate MP4 videos using FFmpeg
 - **Customizable**: Control duration, FPS, resolution, and more
 
@@ -119,15 +123,15 @@ journey --places "Madrid" "Barcelona" "Valencia" --output spain.mp4
 
 ## How It Works
 
-1. **Geocoding**: Place names are converted to coordinates using the Nominatim API
-2. **Camera Path**: A smooth camera path is generated using great-circle interpolation
-3. **Rendering**: CesiumJS renders each frame in a headless browser (Puppeteer)
+1. **Geocoding**: Place names are converted to coordinates using the Nominatim API (or fallback coordinates for common cities)
+2. **Camera Path**: A smooth camera path is generated using great-circle interpolation between locations
+3. **Rendering**: Each frame is rendered as a 2D map projection in a headless browser (Puppeteer)
 4. **Video Export**: FFmpeg combines the frames into a video file
 
 ## Architecture
 
 ```
-CLI → Geocode → Camera Path → CesiumJS Render → PNG Frames → FFmpeg → MP4
+CLI → Geocode → Camera Path → Canvas Render → PNG Frames → FFmpeg → MP4
 ```
 
 ### Project Structure
@@ -135,12 +139,14 @@ CLI → Geocode → Camera Path → CesiumJS Render → PNG Frames → FFmpeg �
 ```
 maps-test/
 ├── src/
-│   ├── cli.js          # Main CLI application
-│   ├── geocode.js      # Geocoding service (Nominatim)
-│   ├── cameraPath.js   # Camera path computation
-│   ├── renderer.js     # CesiumJS renderer (Puppeteer)
-│   └── video.js        # Video export (FFmpeg)
-├── frames/             # Temporary frame storage
+│   ├── cli.js              # Main CLI application
+│   ├── geocode.js          # Geocoding service (Nominatim)
+│   ├── cameraPath.js       # Camera path computation
+│   ├── renderer-simple.js  # Canvas-based map renderer (Puppeteer)
+│   ├── renderer.js         # CesiumJS renderer (alternative, requires CDN access)
+│   └── video.js            # Video export (FFmpeg)
+├── frames/                 # Temporary frame storage
+├── examples.sh             # Example usage script
 ├── package.json
 └── README.md
 ```
@@ -176,13 +182,20 @@ Install FFmpeg using your package manager:
 
 The Nominatim API has usage limits. The tool includes a 1-second delay between requests to respect these limits. For production use, consider using an API key or self-hosted Nominatim instance.
 
+If the Nominatim API is unavailable, the tool will use fallback coordinates for common cities (Paris, London, New York, Tokyo, etc.). You can also use lat,lon coordinates directly.
+
+### Network Restrictions
+
+If you're behind a firewall that blocks external CDNs, the tool uses a self-contained canvas-based renderer that doesn't require external resources. This is the default implementation in `renderer-simple.js`.
+
 ## License
 
 ISC
 
 ## Credits
 
-- **CesiumJS**: 3D globe rendering (Apache 2.0 License)
+- **Canvas API**: 2D rendering in the browser
+- **Puppeteer**: Headless browser automation
 - **OpenStreetMap**: Map data via Nominatim geocoding
 - **FFmpeg**: Video encoding
 

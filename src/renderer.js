@@ -128,7 +128,7 @@ export async function renderFrames(places, cameraPath, outputDir, width = 1920, 
 
   // Generate HTML content
   const htmlContent = generateCesiumHTML(places, cameraPath);
-  const htmlPath = join(outputDir, 'cesium-viewer.html');
+  const htmlPath = join(process.cwd(), outputDir, 'cesium-viewer.html');
   fs.writeFileSync(htmlPath, htmlContent);
 
   console.log('Launching browser...');
@@ -168,10 +168,25 @@ export async function renderFrames(places, cameraPath, outputDir, width = 1920, 
   await page.setViewport({ width, height });
 
   console.log('Loading Cesium viewer...');
-  await page.goto(`file://${htmlPath}`, { waitUntil: 'networkidle0' });
+  
+  // Set longer timeout for external resources
+  page.setDefaultTimeout(60000);
+  
+  try {
+    await page.goto(`file://${htmlPath}`, { 
+      waitUntil: 'networkidle0',
+      timeout: 60000
+    });
+  } catch (error) {
+    console.log('Warning: Page load timeout, continuing anyway...');
+  }
 
   // Wait for Cesium to be ready
-  await page.waitForFunction(() => window.cesiumReady === true, { timeout: 30000 });
+  try {
+    await page.waitForFunction(() => window.cesiumReady === true, { timeout: 45000 });
+  } catch (error) {
+    throw new Error('Cesium failed to initialize. This may be due to network restrictions blocking the Cesium CDN (cesium.com). Please check your internet connection or firewall settings.');
+  }
   
   // Give it a bit more time to fully initialize
   await new Promise(resolve => setTimeout(resolve, 2000));

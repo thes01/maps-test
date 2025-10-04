@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Generated files
+frames/
+*.mp4
+*.mov
+*.avi
+
+# Example outputs
+paris-london.mp4
+europe.mp4
+world-tour.mp4
+custom.mp4
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+/tmp/
